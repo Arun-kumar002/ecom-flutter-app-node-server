@@ -32,10 +32,10 @@ const getUserProfile = async (req, res) => {
 const signupUser = async (req, res) => {
 	try {
 		const { name, email, password } = req.body;
-		const user = await User.findOne({ $or: [{ email }, { name }] });
+		const user = await User.findOne({ email });
 
 		if (user) {
-			return res.status(400).json({ error: "User already exists" });
+			return res.status(400).json({ message: "User already exists" });
 		}
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
@@ -48,7 +48,7 @@ const signupUser = async (req, res) => {
 
 		await newUser.save();
 
-		res.status(200).json({ message: "success" });
+		res.status(200).json({ error: false, message: "success" });
 
 	} catch (err) {
 		res.status(500).json({ error: err.message });
@@ -74,10 +74,10 @@ const loginUser = async (req, res) => {
 			email: user.email,
 			bio: user.bio,
 			profilePic: user.profilePic,
-			token
+			token, error: false
 		});
 	} catch (error) {
-		res.status(500).json({ error: error.message });
+		res.status(500).json({ message: error.message, error: true });
 		console.log("Error in loginUser: ", error.message);
 	}
 };
