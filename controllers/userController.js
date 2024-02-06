@@ -31,8 +31,8 @@ const getUserProfile = async (req, res) => {
 
 const signupUser = async (req, res) => {
 	try {
-		const { name, email, username, password } = req.body;
-		const user = await User.findOne({ $or: [{ email }, { username }] });
+		const { name, email, password } = req.body;
+		const user = await User.findOne({ $or: [{ email }, { name }] });
 
 		if (user) {
 			return res.status(400).json({ error: "User already exists" });
@@ -43,7 +43,6 @@ const signupUser = async (req, res) => {
 		const newUser = new User({
 			name,
 			email,
-			username,
 			password: hashedPassword,
 		});
 
@@ -59,8 +58,8 @@ const signupUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
 	try {
-		const { username, password } = req.body;
-		const user = await User.findOne({ username });
+		const { email, password } = req.body;
+		const user = await User.findOne({ email });
 		const isPasswordCorrect = await bcrypt.compare(password, user?.password || "");
 
 		if (!user || !isPasswordCorrect) return res.status(400).json({ error: "Invalid username or password" });
@@ -73,7 +72,6 @@ const loginUser = async (req, res) => {
 			_id: user._id,
 			name: user.name,
 			email: user.email,
-			username: user.username,
 			bio: user.bio,
 			profilePic: user.profilePic,
 			token
